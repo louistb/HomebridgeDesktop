@@ -2,7 +2,7 @@
 Homebridge Desktop
 </p>
 <p align="center">
-  <img width="100" src="https://raw.githubusercontent.com/louistb/HomebridgeDesktop/main/logo.png?token=AAUIAIMIQTSZ7JCLA2MBJG3ASL4MO">
+  <img width="100" src="https://raw.githubusercontent.com/louistb/HomebridgeDesktop/main/logo.png">
 </p>
 
 <p align="center">
