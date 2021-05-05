@@ -1,0 +1,106 @@
+<html>
+
+<head>
+    <title>Homebridge Desktop</title>
+    <style>
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            border-radius: 20px;
+            background-color: black;
+        }
+
+        #topmenu {
+            background-color: rgb(27 27 27);
+            height: 40px;
+            width: 100%;
+            -webkit-app-region: drag;
+        }
+
+        #config {
+            font-size: 20px;
+            display: none;
+            background-color: black;
+            color: white;
+        }
+
+        #config form {
+            width: 300px;
+            margin: auto;
+            margin-top: 100px;
+        }
+
+        #topmenu button {
+            -webkit-app-region: no-drag;
+            float: right;
+            background-color: #6b6b6b;
+            font-size: 15px;
+            width: 30px;
+            border: none;
+            margin-top: 5px;
+            margin-right: 10px;
+            /* margin-left: 10px; */
+            color: white;
+            padding: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="topmenu">
+        <button onclick="quit()">X</button>
+        <button onclick="minimize()">_</button>
+    </div>
+    <div id="config">
+        <form id="setupform">
+            <h1>Setup Homebridge</h1>
+            <label for="fname">Hostname or IP:</label><br>
+            <input required=true type="text" id="address" name="address" placeholder="raspberrypi.local"><br>
+            <label for="lname">Port:</label><br>
+            <input required=true type="number" id="port" name="port" value="port" placeholder=8285><br><br>
+            <input type="submit" value="Setup">
+        </form>
+    </div>
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        function quit() {
+            ipcRenderer.send('quit');
+        }
+        function minimize() {
+            ipcRenderer.send('minimize');
+        }
+
+        ipcRenderer.on("showconfig", () => {
+            var field = document.getElementById("config");
+            field.style.display = "block";
+        });
+
+
+        document.getElementById('setupform').addEventListener("submit", async (event) => {
+            event.preventDefault();
+            var config = {
+                address: document.getElementById('address').value,
+                port: document.getElementById('port').value
+            }
+            try {
+                var test = await fetch("http://" + config.address + ":" + config.port.toString());
+                if (test.status == 200) {
+                    ipcRenderer.send('sucessconfig', config);
+                }
+            } catch (e) {
+                alert("Error connecting to homebridge server");
+            }
+        });
+
+    </script>
+</body>
+
+</html>
