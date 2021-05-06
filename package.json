@@ -18,8 +18,8 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.9",
     "electron-store": "^8.0.0",
-    "got": "^11.8.2",
     "node-notifier": "^9.0.1",
+    "request-promise-native": "^1.0.9",
     "semver": "^7.3.5"
   },
   "build": {

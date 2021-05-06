@@ -3,7 +3,8 @@ const path = require('path')
 const Store = require('electron-store');
 const store = new Store();
 const notifier = require('node-notifier');
-const got = require('got');
+const rp = require('request-promise-native');
+
 const cheerio = require('cheerio');
 const semver = require('semver');
 let mainwin;
@@ -31,10 +32,12 @@ function createWindow() {
   var tempwinconfig = store.get("window-config");
 
   if (tempwinconfig == undefined) {
-    store.set("window-config", { pos: { x: 0, y: 0 }, size: { width: 0, height: 0 } });
+    store.set("window-config", { pos: { x: 200, y: 200 }, size: { width: 1000, height: 800} });
   } else {
     winconfig = tempwinconfig;
   }
+
+  console.log(winconfig);
 
   tray = new Tray(path.join(__dirname, 'tray.png'));
 
@@ -46,6 +49,7 @@ function createWindow() {
     },
     {
       label: 'Restore Config', click: function () {
+        store.delete("window-config");
         store.delete('homebrige-config');
         app.relaunch()
         app.exit()
@@ -107,8 +111,11 @@ app.whenReady().then(async () => {
 
   //CHECK FOR UPDATE
 
-  const {body} = await got.get('https://github.com/louistb/HomebridgeDesktop/releases/latest');
+  var options = {
+    uri:'https://github.com/louistb/HomebridgeDesktop/releases/latest'
+  }
 
+  var body = await rp(options);
   var $ = cheerio.load(body);
   var title = $("title").text();
   var version = title.replace(/[^\d.-]/g, '');
