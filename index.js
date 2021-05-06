@@ -19,7 +19,7 @@ function createHomeBridgeBrowserView() {
 
 function createWindow() {
   
-  tray = new Tray(path.join(__dirname, 'logo.png'));
+  tray = new Tray(path.join(__dirname, 'tray.png'));
   
   tray.setContextMenu(Menu.buildFromTemplate([
     {
