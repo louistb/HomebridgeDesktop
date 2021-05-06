@@ -1,7 +1,7 @@
 {
   "name": "Homebridge",
   "productName": "Homebridge Desktop",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Lightweight cross-platform desktop client for Homebridge.",
   "main": "index.js",
   "author": "Louis TB <contact@louistb.work> (http://www.louistb.work)",

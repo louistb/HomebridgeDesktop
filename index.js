@@ -7,20 +7,34 @@ let mainwin;
 let tray;
 let framemenuheight = 40;
 let config;
+let winconfig;
+
+function updateWinConfig() {
+  store.set("window-config",winconfig);
+}
 
 function createHomeBridgeBrowserView() {
   const view = new BrowserView();
-  //mainwin.webContents.openDevTools({ mode: 'detach' });
   mainwin.setBrowserView(view)
-  view.setBounds({ x: 0, y: framemenuheight, width: 1200, height: (800 - framemenuheight) })
+  view.setBounds({ x: 0, y: framemenuheight, width: winconfig.size.width, height: (winconfig.size.height - framemenuheight) })
   view.setAutoResize({ width: true, height: true });
   view.webContents.loadURL("http://" + config.address + ":" + config.port.toString());
 }
 
 function createWindow() {
-  
+
+  //GETTING WIN CONFIG 
+
+  var tempwinconfig = store.get("window-config");
+
+  if (tempwinconfig == undefined) {
+    store.set("window-config", { pos: { x: 0, y: 0 }, size: { width: 0, height: 0 } });
+  } else {
+    winconfig = tempwinconfig;
+  }
+
   tray = new Tray(path.join(__dirname, 'tray.png'));
-  
+
   tray.setContextMenu(Menu.buildFromTemplate([
     {
       label: 'Show App', click: function () {
@@ -41,10 +55,12 @@ function createWindow() {
       }
     }
   ]));
-  
+
   mainwin = new BrowserWindow({
-    width: 1200,
-    height: 800,
+    width: winconfig.size.width,
+    height: winconfig.size.height,
+    x:winconfig.pos.x,
+    y:winconfig.pos.y,
     frame: false,
     transparent: true,
     webPreferences: {
@@ -58,7 +74,7 @@ function createWindow() {
   mainwin.once('ready-to-show', () => {
     let tempconfig = store.get('homebrige-config');
 
-    if(tempconfig == undefined) {
+    if (tempconfig == undefined) {
       mainwin.webContents.send('showconfig');
     } else {
       config = tempconfig;
@@ -66,12 +82,28 @@ function createWindow() {
     }
   })
 
+  mainwin.on('moved', function () {
+    var pos = mainwin.getPosition();
+    winconfig.pos.x = pos[0];
+    winconfig.pos.y = pos[1];
+
+    updateWinConfig();
+  });
+
+  mainwin.on('resized', function () {
+    var size = mainwin.getSize();
+    winconfig.size.width = size[0];
+    winconfig.size.height = size[1];
+    updateWinConfig();
+
+  });
+
 }
 
 app.whenReady().then(() => {
 
   globalShortcut.register('Alt+CommandOrControl+H', () => {
-    if(mainwin.isVisible() == true) {
+    if (mainwin.isVisible() == true) {
       mainwin.hide();
     } else {
       mainwin.show();
@@ -101,8 +133,9 @@ ipcMain.on("minimize", () => {
   mainwin.hide();
 });
 
-ipcMain.on("sucessconfig", (event,data) => {
-  store.set("homebrige-config",data);
+ipcMain.on("sucessconfig", (event, data) => {
+  store.set("homebrige-config", data);
+  store.set("window-config", { pos: { x: 200, y: 200 }, size: { width: 1000, height: 800} });
   config = data;
   createHomeBridgeBrowserView();
 });
