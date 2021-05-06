@@ -8,7 +8,7 @@ https://github.com/louistb/HomebridgeDesktop/releases/latest
 ### Setup
 On first startup the app will ask you to enter your homebrigde hostname/ip and port.
 Then the app will open up the web interface and you will need to enter your credential.
-All these infos are savec in a persistant way so you dont need to re-enter them everytime you use the app.
+All these infos are saved in a persistant way so you dont need to re-enter them everytime you use the app.
 
 ### Usage
 You can use this Desktop App like you use the web interface, you can minize the app to keep in open in the background.
