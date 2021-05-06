@@ -3,7 +3,8 @@
 ![logo](https://github.com/louistb/HomebridgeDesktop/blob/af5cc8dfa37046cbafc810af3c595618e8d03edc/logo.png?raw=true|width=50px)
 ## Lightweight cross-platform desktop client for Homebridge 😁
 Just a simple client that works on all OS to display your homebridge dashboard, it can be minimize and placed to system tray. </br> Its possible to trigger its visibility with CTL+ALT+H
-
+## Download installer 
+https://github.com/louistb/HomebridgeDesktop/releases/latest
 ### Setup
 On first startup the app will ask you to enter your homebrigde hostname/ip and port.
 Then the app will open up the web interface and you will need to enter your credential.
