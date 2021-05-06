@@ -11,9 +11,7 @@ Then the app will open up the web interface and you will need to enter your cred
 All these infos are saved in a persistant way so you dont need to re-enter them everytime you use the app.
 
 ### Usage
-You can use this Desktop App like you use the web interface, you can minize the app to keep in open in the background.
-To get get back to the app you can do CTL + ALT + H on your keyboard to bring back the app window.
-On Windows, you can go in you app tray, find the Homebridge Logo and right click on it and click show app.
+This little app will keep you login to the dashboard you can show and hide the window with a keyboard shortcut (CTL-ALT-H on Windows, FN+CMD+H on Mac) or minimize it to your app tray (Windows) or Status Menu (Mac).
 
 ### Reset
 On Windows, you can go in you app tray, find the Homebridge Logo and right click Restore Config.
