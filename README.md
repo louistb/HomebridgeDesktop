@@ -26,3 +26,4 @@ On Mac, you can go the Homebridge menu bar and click on the Restore Config Optio
 - [x] App Tray Support on Windows
 - [ ] Devices List Panel for quick access or keyboard shortcut
 - [ ] Keyboard Shortcut support to trigger certain devices
+- [ ] Camera Viewing support
