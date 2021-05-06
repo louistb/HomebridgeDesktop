@@ -16,7 +16,11 @@
     "electron-builder": "^22.11.1"
   },
   "dependencies": {
-    "electron-store": "^8.0.0"
+    "cheerio": "^1.0.0-rc.9",
+    "electron-store": "^8.0.0",
+    "got": "^11.8.2",
+    "node-notifier": "^9.0.1",
+    "semver": "^7.3.5"
   },
   "build": {
     "appId": "com.homebridgedesktop",

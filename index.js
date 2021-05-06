@@ -2,7 +2,10 @@ const { app, BrowserWindow, BrowserView, ipcMain, Tray, Menu, globalShortcut } =
 const path = require('path')
 const Store = require('electron-store');
 const store = new Store();
-
+const notifier = require('node-notifier');
+const got = require('got');
+const cheerio = require('cheerio');
+const semver = require('semver');
 let mainwin;
 let tray;
 let framemenuheight = 40;
@@ -100,8 +103,25 @@ function createWindow() {
 
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
 
+  //CHECK FOR UPDATE
+
+  const {body} = await got.get('https://github.com/louistb/HomebridgeDesktop/releases/latest');
+
+  var $ = cheerio.load(body);
+  var title = $("title").text();
+  var version = title.replace(/[^\d.-]/g, '');
+
+  if(semver.gte(version,app.getVersion()) == true) {
+    notifier.notify({
+      title: 'Home Bridge Desktop',
+      message: 'New Update Available',
+      open:"https://github.com/louistb/HomebridgeDesktop/releases/latest",
+      icon: path.join(__dirname, 'logo.png')
+    });
+  }
+  
   globalShortcut.register('Alt+CommandOrControl+H', () => {
     if (mainwin.isVisible() == true) {
       mainwin.hide();
