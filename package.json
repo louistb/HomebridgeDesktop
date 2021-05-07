@@ -19,6 +19,7 @@
     "cheerio": "^1.0.0-rc.9",
     "electron-store": "^8.0.0",
     "node-notifier": "^9.0.1",
+    "request": "^2.88.2",
     "request-promise-native": "^1.0.9",
     "semver": "^7.3.5"
   },

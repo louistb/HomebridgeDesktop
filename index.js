@@ -37,8 +37,6 @@ function createWindow() {
     winconfig = tempwinconfig;
   }
 
-  console.log(winconfig);
-
   tray = new Tray(path.join(__dirname, 'tray.png'));
 
   tray.setContextMenu(Menu.buildFromTemplate([
