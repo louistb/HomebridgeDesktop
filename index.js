@@ -118,7 +118,7 @@ app.whenReady().then(async () => {
   var title = $("title").text();
   var version = title.replace(/[^\d.-]/g, '');
 
-  if(semver.gte(version,app.getVersion()) == true) {
+  if(semver.satisfies(version,app.getVersion()) == false) {
     notifier.notify({
       title: 'Home Bridge Desktop',
       message: 'New Update Available',
