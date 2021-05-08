@@ -1,4 +1,4 @@
-const { app, BrowserWindow, BrowserView, ipcMain, Tray, Menu, globalShortcut } = require('electron')
+const { app, BrowserWindow, BrowserView, ipcMain, Tray, Menu, globalShortcut, session } = require('electron')
 const path = require('path')
 const Store = require('electron-store');
 const store = new Store();
@@ -23,6 +23,25 @@ function createHomeBridgeBrowserView() {
   view.setBounds({ x: 0, y: framemenuheight, width: winconfig.size.width, height: (winconfig.size.height - framemenuheight) })
   view.setAutoResize({ width: true, height: true });
   view.webContents.loadURL("http://" + config.address + ":" + config.port.toString());
+  view.webContents.executeJavaScript(`
+  async function postData(url = '', data = {}) {
+  const response = await fetch(url, {
+    method: 'POST', 
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  });
+  return response.json();
+  }
+
+  postData('http://slimpi.local:8581/api/auth/login ', { username: "${config.username}",password:"${config.password}"})
+    .then(data => {
+      localStorage.setItem("access_token",data.access_token);
+      location.reload();
+    });
+  `)
+
 }
 
 function createWindow() {
@@ -47,6 +66,7 @@ function createWindow() {
     },
     {
       label: 'Restore Config', click: function () {
+        session.defaultSession.clearStorageData();
         store.delete("window-config");
         store.delete('homebrige-config');
         app.relaunch()
@@ -118,7 +138,7 @@ app.whenReady().then(async () => {
   var title = $("title").text();
   var version = title.replace(/[^\d.-]/g, '');
 
-  if(semver.satisfies(version,app.getVersion()) == false) {
+  if(semver.gte(version,app.getVersion()) == true) {
     notifier.notify({
       title: 'Home Bridge Desktop',
       message: 'New Update Available',

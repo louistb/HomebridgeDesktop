@@ -5,6 +5,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;1,100&display=swap" rel="stylesheet">
     <style>
+
+        .center {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        /* width: 50%; */
+        height:100px;
+        }
+
         ::-webkit-scrollbar {
             display: none;
         }
@@ -53,10 +62,9 @@
             line-height: 15px;
             height: 40px;
         }
-        #error {
+        #status {
             margin-top:10px;
             font-size:15px;
-            color:red;
         }
         #topmenu button {
             -webkit-app-region: no-drag;
@@ -80,14 +88,18 @@
     </div>
     <div id="config">
         <form id="setupform">
-            <img src="./logo.png" alt="">
+            <img src="./logo.png" class="center">
             <h1>Setup Homebridge</h1>
             <label for="fname">Hostname or IP:</label><br>
             <input required=true type="text" id="address" name="address" placeholder="raspberrypi.local"><br>
             <label for="lname">Port:</label><br>
             <input required=true type="number" id="port" name="port" value="port" placeholder=8285><br><br>
+            <label for="lname">Username:</label><br>
+            <input required=true type="text" id="username" name="port" value="port" placeholder=admin><br><br>
+            <label for="lname">Password:</label><br>
+            <input required=true type="password" id="password" name="port" value="port" placeholder=admin><br><br>
             <input type="submit" value="Setup">
-            <p id="error"></p>
+            <p id="status"></p>
         </form>
     </div>
     <script>
@@ -106,19 +118,43 @@
         });
 
 
+        async function postData(url = '', data = {}) {
+
+        const response = await fetch(url, {
+            method: 'POST', 
+            headers: {
+            'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        return response.json();
+        }
+
+
         document.getElementById('setupform').addEventListener("submit", async (event) => {
             event.preventDefault();
             var config = {
                 address: document.getElementById('address').value,
-                port: document.getElementById('port').value
+                port: document.getElementById('port').value,
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value
             }
             try {
+                document.getElementById("status").innerText = "Testing connection to server";
                 var test = await fetch("http://" + config.address + ":" + config.port.toString());
+                var testauth = await postData("http://" + config.address + ":" + config.port.toString() + "/api/auth/login", { username: config.username,password:config.password});
+        
                 if (test.status == 200) {
-                    ipcRenderer.send('sucessconfig', config);
+                    if(testauth["access_token"] != undefined) {
+                        ipcRenderer.send('sucessconfig', config);
+                    } else {
+                        document.getElementById("status").innerText = "Wrong credential";
+                    }
                 }
+            
             } catch (e) {
-                document.getElementById("error").innerText = "Error connecting to homebridge server";
+                console.log(e);
+                document.getElementById("status").innerText = "Error connecting to homebridge server";
             }
         });
 
