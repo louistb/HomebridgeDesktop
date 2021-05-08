@@ -12,9 +12,48 @@ let tray;
 let framemenuheight = 40;
 let config;
 let winconfig;
+let bearer;
+let devicessimplified;
+
+async function getbearer() {
+  var options = {
+    url: "http://" + config.address + ":" + config.port.toString() + "/api/auth/login",
+    method: 'POST',
+    json: { username: config.username,password:config.password},
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  };
+  let response = await rp(options);
+  bearer = response["access_token"];
+}
+
+async function getDeviceList() {
+  var options = {
+    url: "http://" + config.address + ":" + config.port.toString() + "/api/accessories",
+    method: 'GET',
+    headers: {
+      'Authorization': 'Bearer ' + bearer,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    json:true
+  };
+  let response = await rp(options);
+
+  response.forEach((device) => {
+    if(device.type === "Lightbulb" || device.type === "Outlet") {
+      console.log({type:device.type,uuid:device.uuid,values:device.values,name:device.serviceName});
+      //devicessimplified.push({type:device.type,uuid:device.uuid,values:device.values});
+    }
+  });
+
+  console.log(devicessimplified);
+}
 
 function updateWinConfig() {
-  store.set("window-config",winconfig);
+  store.set("window-config", winconfig);
 }
 
 function createHomeBridgeBrowserView() {
@@ -51,7 +90,7 @@ function createWindow() {
   var tempwinconfig = store.get("window-config");
 
   if (tempwinconfig == undefined) {
-    store.set("window-config", { pos: { x: 200, y: 200 }, size: { width: 1000, height: 800} });
+    store.set("window-config", { pos: { x: 200, y: 200 }, size: { width: 1000, height: 800 } });
   } else {
     winconfig = tempwinconfig;
   }
@@ -84,8 +123,8 @@ function createWindow() {
   mainwin = new BrowserWindow({
     width: winconfig.size.width,
     height: winconfig.size.height,
-    x:winconfig.pos.x,
-    y:winconfig.pos.y,
+    x: winconfig.pos.x,
+    y: winconfig.pos.y,
     frame: false,
     transparent: true,
     webPreferences: {
@@ -96,13 +135,15 @@ function createWindow() {
   mainwin.loadURL(`file://${__dirname}/frame.html`)
 
 
-  mainwin.once('ready-to-show', () => {
+  mainwin.once('ready-to-show', async () => {
     let tempconfig = store.get('homebrige-config');
 
     if (tempconfig == undefined) {
       mainwin.webContents.send('showconfig');
     } else {
       config = tempconfig;
+      await getbearer();
+      await getDeviceList();
       createHomeBridgeBrowserView();
     }
   })
@@ -120,7 +161,6 @@ function createWindow() {
     winconfig.size.width = size[0];
     winconfig.size.height = size[1];
     updateWinConfig();
-
   });
 
 }
@@ -130,7 +170,7 @@ app.whenReady().then(async () => {
   //CHECK FOR UPDATE
 
   var options = {
-    uri:'https://github.com/louistb/HomebridgeDesktop/releases/latest'
+    uri: 'https://github.com/louistb/HomebridgeDesktop/releases/latest'
   }
 
   var body = await rp(options);
@@ -138,15 +178,15 @@ app.whenReady().then(async () => {
   var title = $("title").text();
   var version = title.replace(/[^\d.-]/g, '');
 
-  if(semver.gte(version,app.getVersion()) == true) {
+  if (semver.satisfies(version, app.getVersion()) == false) {
     notifier.notify({
       title: 'Home Bridge Desktop',
       message: 'New Update Available',
-      open:"https://github.com/louistb/HomebridgeDesktop/releases/latest",
+      open: "https://github.com/louistb/HomebridgeDesktop/releases/latest",
       icon: path.join(__dirname, 'logo.png')
     });
   }
-  
+
   globalShortcut.register('Alt+CommandOrControl+H', () => {
     if (mainwin.isVisible() == true) {
       mainwin.hide();
@@ -180,7 +220,7 @@ ipcMain.on("minimize", () => {
 
 ipcMain.on("sucessconfig", (event, data) => {
   store.set("homebrige-config", data);
-  store.set("window-config", { pos: { x: 200, y: 200 }, size: { width: 1000, height: 800} });
+  store.set("window-config", { pos: { x: 200, y: 200 }, size: { width: 1000, height: 800 } });
   config = data;
   createHomeBridgeBrowserView();
 });
