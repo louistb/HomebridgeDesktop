@@ -4,53 +4,15 @@ const Store = require('electron-store');
 const store = new Store();
 const notifier = require('node-notifier');
 const rp = require('request-promise-native');
-
 const cheerio = require('cheerio');
 const semver = require('semver');
+const shortcut = require("./shortcuts");
+
 let mainwin;
 let tray;
 let framemenuheight = 40;
-let config;
+global.config = {};
 let winconfig;
-let bearer;
-let devicessimplified;
-
-async function getbearer() {
-  var options = {
-    url: "http://" + config.address + ":" + config.port.toString() + "/api/auth/login",
-    method: 'POST',
-    json: { username: config.username,password:config.password},
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    }
-  };
-  let response = await rp(options);
-  bearer = response["access_token"];
-}
-
-async function getDeviceList() {
-  var options = {
-    url: "http://" + config.address + ":" + config.port.toString() + "/api/accessories",
-    method: 'GET',
-    headers: {
-      'Authorization': 'Bearer ' + bearer,
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    },
-    json:true
-  };
-  let response = await rp(options);
-
-  response.forEach((device) => {
-    if(device.type === "Lightbulb" || device.type === "Outlet") {
-      console.log({type:device.type,uuid:device.uuid,values:device.values,name:device.serviceName});
-      //devicessimplified.push({type:device.type,uuid:device.uuid,values:device.values});
-    }
-  });
-
-  console.log(devicessimplified);
-}
 
 function updateWinConfig() {
   store.set("window-config", winconfig);
@@ -61,7 +23,7 @@ function createHomeBridgeBrowserView() {
   mainwin.setBrowserView(view)
   view.setBounds({ x: 0, y: framemenuheight, width: winconfig.size.width, height: (winconfig.size.height - framemenuheight) })
   view.setAutoResize({ width: true, height: true });
-  view.webContents.loadURL("http://" + config.address + ":" + config.port.toString());
+  view.webContents.loadURL("http://" + global.config.address + ":" + global.config.port.toString());
   view.webContents.executeJavaScript(`
   async function postData(url = '', data = {}) {
   const response = await fetch(url, {
@@ -74,7 +36,7 @@ function createHomeBridgeBrowserView() {
   return response.json();
   }
 
-  postData('http://slimpi.local:8581/api/auth/login ', { username: "${config.username}",password:"${config.password}"})
+  postData('http://${global.config.address}:${global.config.port}/api/auth/login ', { username: "${global.config.username}",password:"${global.config.password}"})
     .then(data => {
       localStorage.setItem("access_token",data.access_token);
       location.reload();
@@ -133,7 +95,7 @@ function createWindow() {
     }
   })
   mainwin.loadURL(`file://${__dirname}/frame.html`)
-
+  mainwin.webContents.openDevTools({mode:"detach"});
 
   mainwin.once('ready-to-show', async () => {
     let tempconfig = store.get('homebrige-config');
@@ -141,10 +103,13 @@ function createWindow() {
     if (tempconfig == undefined) {
       mainwin.webContents.send('showconfig');
     } else {
-      config = tempconfig;
-      await getbearer();
-      await getDeviceList();
+      global.config = tempconfig;
       createHomeBridgeBrowserView();
+      mainwin.webContents.send("update:status","Connecting to API");
+      await shortcut.getbearer();
+      mainwin.webContents.send("update:status","Fetching devices");
+      await shortcut.getDeviceList();
+      mainwin.webContents.send("update:status","Ready");
     }
   })
 
@@ -195,7 +160,8 @@ app.whenReady().then(async () => {
     }
   })
 
-  createWindow()
+  await shortcut.initShortcuts(globalShortcut);
+  createWindow();
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -221,6 +187,6 @@ ipcMain.on("minimize", () => {
 ipcMain.on("sucessconfig", (event, data) => {
   store.set("homebrige-config", data);
   store.set("window-config", { pos: { x: 200, y: 200 }, size: { width: 1000, height: 800 } });
-  config = data;
+  global.config = data;
   createHomeBridgeBrowserView();
 });

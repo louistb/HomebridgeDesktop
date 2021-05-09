@@ -35,7 +35,12 @@
             width: 100%;
             -webkit-app-region: drag;
         }
-
+        #statusframe {
+            margin: 0;
+            color: white;
+            float: left;
+            padding: 10px;
+        }
         #config {
             font-size: 20px;
             display: none;
@@ -71,20 +76,25 @@
             float: right;
             background-color: #6b6b6b;
             font-size: 15px;
-            width: 30px;
+            width: auto;
             border: none;
             margin-top: 5px;
             margin-right: 10px;
             color: white;
             padding: 4px;
         }
+        .smallbtn {
+            width:30px;
+        }
     </style>
 </head>
 
 <body>
     <div id="topmenu">
-        <button onclick="quit()">X</button>
-        <button onclick="minimize()">_</button>
+        <p id="statusframe">Ready</p>
+        <button class="smallbtn" onclick="quit()">X</button>
+        <button class="smallbtn" onclick="minimize()">_</button>
+        <button onclick="openShortcutWindow()">Shortcuts</button>
     </div>
     <div id="config">
         <form id="setupform">
@@ -111,12 +121,20 @@
         function minimize() {
             ipcRenderer.send('minimize');
         }
+        
+        function openShortcutWindow() {
+
+        }
 
         ipcRenderer.on("showconfig", () => {
             var field = document.getElementById("config");
             field.style.display = "block";
         });
 
+
+        ipcRenderer.on("update:status", (event,data) => {
+            document.getElementById("statusframe").innerText = data;
+        });
 
         async function postData(url = '', data = {}) {
 
