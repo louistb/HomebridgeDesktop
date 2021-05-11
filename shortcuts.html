@@ -1,0 +1,106 @@
+<html>
+
+<head>
+    <title>Homebridge Desktop - Short Cuts</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;1,100&display=swap" rel="stylesheet">
+    <style>
+
+        .center {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        /* width: 50%; */
+        height:100px;
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            border-radius: 20px;
+            background-color: black;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        #topmenu {
+            background-color: rgb(27 27 27);
+            height: 40px;
+            width: 100%;
+            -webkit-app-region: drag;
+        }
+        #statusframe {
+            margin: 0;
+            color: white;
+            float: left;
+            padding: 10px;
+        }
+        #config {
+            font-size: 20px;
+            display: none;
+            background-color: black;
+            color: white;
+        }
+
+        #config form {
+            width: 300px;
+            margin: auto;
+            margin-top: 100px;
+        }
+        #config h1 {
+            margin-bottom:10px;
+            font-size: 30px;
+            text-align: center;
+            padding: 20px;
+            margin-top:10px;
+        }
+        #config input {
+            margin-top:10px;
+            width: 100%;
+            font-size:20px;
+            line-height: 15px;
+            height: 40px;
+        }
+        #status {
+            margin-top:10px;
+            font-size:15px;
+        }
+        #topmenu button {
+            -webkit-app-region: no-drag;
+            float: right;
+            background-color: #6b6b6b;
+            font-size: 15px;
+            width: auto;
+            border: none;
+            margin-top: 5px;
+            margin-right: 10px;
+            color: white;
+            padding: 4px;
+        }
+        .smallbtn {
+            width:30px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="topmenu">
+        <button class="smallbtn" onclick="quit()">X</button>
+    </div>
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        function quit() {
+            ipcRenderer.send('close:shortcuts');
+        }
+
+    </script>
+</body>
+
+</html>

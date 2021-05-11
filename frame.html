@@ -116,14 +116,14 @@
         const { ipcRenderer } = require('electron');
 
         function quit() {
-            ipcRenderer.send('quit');
+            ipcRenderer.send('close:main');
         }
         function minimize() {
-            ipcRenderer.send('minimize');
+            ipcRenderer.send('minimize:main');
         }
         
         function openShortcutWindow() {
-
+            ipcRenderer.send("open:shortcuts");
         }
 
         ipcRenderer.on("showconfig", () => {

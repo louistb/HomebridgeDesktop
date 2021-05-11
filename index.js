@@ -9,6 +9,7 @@ const semver = require('semver');
 const shortcut = require("./shortcuts");
 
 let mainwin;
+let shortcutwin;
 let tray;
 let framemenuheight = 40;
 global.config = {};
@@ -42,6 +43,26 @@ function createHomeBridgeBrowserView() {
       location.reload();
     });
   `)
+
+}
+
+function createShortCutWindow() {
+
+  shortcutwin = new BrowserWindow({
+    width: 500,
+    height: 500,
+    frame: false,
+    transparent: true,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false
+    }
+  })
+  shortcutwin.loadURL(`file://${__dirname}/shortcuts.html`)
+  //mainwin.webContents.openDevTools({mode:"detach"});
+
+  shortcutwin.once('ready-to-show', async () => {
+  })
 
 }
 
@@ -176,11 +197,11 @@ app.on('window-all-closed', () => {
   }
 })
 
-ipcMain.on("quit", () => {
+ipcMain.on("close:main", () => {
   app.quit();
 });
 
-ipcMain.on("minimize", () => {
+ipcMain.on("minimize:main", () => {
   mainwin.hide();
 });
 
@@ -189,4 +210,20 @@ ipcMain.on("sucessconfig", (event, data) => {
   store.set("window-config", { pos: { x: 200, y: 200 }, size: { width: 1000, height: 800 } });
   global.config = data;
   createHomeBridgeBrowserView();
+});
+
+ipcMain.on("open:shortcuts", (event, data) => {
+  if(shortcutwin == undefined) {
+    createShortCutWindow();
+  } else {
+    shortcutwin.setAlwaysOnTop(true);
+    shortcutwin.setAlwaysOnTop(false);
+  }
+});
+
+ipcMain.on("close:shortcuts", (event, data) => {
+  if(shortcutwin != undefined) {
+    shortcutwin.close();
+    shortcutwin = undefined;
+  }
 });
