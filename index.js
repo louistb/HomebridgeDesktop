@@ -26,22 +26,34 @@ function createHomeBridgeBrowserView() {
   view.setAutoResize({ width: true, height: true });
   view.webContents.loadURL("http://" + global.config.address + ":" + global.config.port.toString());
   view.webContents.executeJavaScript(`
-  async function postData(url = '', data = {}) {
-  const response = await fetch(url, {
-    method: 'POST', 
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
-  });
-  return response.json();
-  }
+    let logattemptinterval;  
 
-  postData('http://${global.config.address}:${global.config.port}/api/auth/login ', { username: "${global.config.username}",password:"${global.config.password}"})
-    .then(data => {
-      localStorage.setItem("access_token",data.access_token);
-      location.reload();
-    });
+    async function postData(url = '', data = {}) {
+      const response = await fetch(url, {
+        method: 'POST', 
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+      return response.json();
+      }
+
+    async function login() {
+        if(document.getElementsByTagName("div").length > 7) {
+            clearInterval(logattemptinterval);
+        } else {
+          postData('api/auth/login ', { username: "${global.config.username}",password:"${global.config.password}"})
+            .then(data => {
+              localStorage.setItem("access_token",data.access_token);
+              location.reload();
+            });
+        }
+
+    }
+
+    logattemptinterval = setInterval(login,1000);
+
   `)
 
 }
@@ -116,7 +128,7 @@ function createWindow() {
     }
   })
   mainwin.loadURL(`file://${__dirname}/frame.html`)
-  mainwin.webContents.openDevTools({mode:"detach"});
+  mainwin.webContents.openDevTools({ mode: "detach" });
 
   mainwin.once('ready-to-show', async () => {
     let tempconfig = store.get('homebrige-config');
@@ -126,11 +138,11 @@ function createWindow() {
     } else {
       global.config = tempconfig;
       createHomeBridgeBrowserView();
-      mainwin.webContents.send("update:status","Connecting to API");
+      mainwin.webContents.send("update:status", "Connecting to API");
       await shortcut.getbearer();
-      mainwin.webContents.send("update:status","Fetching devices");
+      mainwin.webContents.send("update:status", "Fetching devices");
       await shortcut.getDeviceList();
-      mainwin.webContents.send("update:status","Ready");
+      mainwin.webContents.send("update:status", "Ready");
     }
   })
 
@@ -213,7 +225,7 @@ ipcMain.on("sucessconfig", (event, data) => {
 });
 
 ipcMain.on("open:shortcuts", (event, data) => {
-  if(shortcutwin == undefined) {
+  if (shortcutwin == undefined) {
     createShortCutWindow();
   } else {
     shortcutwin.setAlwaysOnTop(true);
@@ -222,7 +234,7 @@ ipcMain.on("open:shortcuts", (event, data) => {
 });
 
 ipcMain.on("close:shortcuts", (event, data) => {
-  if(shortcutwin != undefined) {
+  if (shortcutwin != undefined) {
     shortcutwin.close();
     shortcutwin = undefined;
   }
