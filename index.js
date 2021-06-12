@@ -51,11 +51,12 @@ function createHomeBridgeBrowserView() {
         }
 
     }
-
-    logattemptinterval = setInterval(login,1000);
+    login();
+    logattemptinterval = setInterval(login,2000);
 
   `)
 
+  //view.webContents.openDevTools({mode:"detach"});
 }
 
 function createShortCutWindow() {
@@ -72,7 +73,6 @@ function createShortCutWindow() {
   })
   shortcutwin.loadURL(`file://${__dirname}/shortcuts.html`)
   //mainwin.webContents.openDevTools({mode:"detach"});
-
   shortcutwin.once('ready-to-show', async () => {
   })
 
@@ -128,7 +128,7 @@ function createWindow() {
     }
   })
   mainwin.loadURL(`file://${__dirname}/frame.html`)
-  mainwin.webContents.openDevTools({ mode: "detach" });
+  //mainwin.webContents.openDevTools({ mode: "detach" });
 
   mainwin.once('ready-to-show', async () => {
     let tempconfig = store.get('homebrige-config');
