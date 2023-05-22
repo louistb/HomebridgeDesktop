@@ -1,3 +1,4 @@
+# not maintained anymore - feel free to fork
 
 # Homebridge Desktop
 ![logo](https://github.com/louistb/HomebridgeDesktop/blob/af5cc8dfa37046cbafc810af3c595618e8d03edc/logo.png?raw=true|width=50px)
